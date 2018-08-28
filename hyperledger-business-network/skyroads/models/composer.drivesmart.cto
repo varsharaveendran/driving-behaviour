@@ -1,0 +1,129 @@
+namespace composer.drivesmart
+
+enum Gender {
+ o MALE
+ o FEMALE
+ o OTHER
+}
+
+enum ViolationType {
+ o BREAKING
+ o ACCELERATION
+ o LEFT_TURN
+ o RIGHT_TURN
+ o LEFT_LANE_CHANGE
+ o RIGHT_LANE_CHANGE
+}
+
+abstract participant Person {
+  o String title optional
+  o String firstName  optional
+  o String lastName  optional
+  o String[] middleNames  optional
+  o Gender gender optional
+  o String[] nationalities optional
+  o ContactDetails contactDetails optional
+}
+
+concept Address {
+  o String city optional
+  o String country optional
+  o String locality optional
+  o String region optional
+  o String street optional
+  o String street2 optional
+  o String street3 optional
+  o String postalCode optional
+  o String postOfficeBoxNumber optional
+}
+
+concept ContactDetails {
+  o String email  optional
+  o String mobilePhone  optional
+  o String homePhone optional
+  o Address address optional
+}
+
+participant Driver identified by driver_id extends Person {
+  o String driver_id
+  o Integer driver_score
+  o String[] driving_logs
+}
+
+participant Insurer identified by insurer_id extends Person {
+  o String insurer_id
+  o String[] viewable_records
+}
+
+asset DrivingViolation identified by violation_no {
+  o String violation_no
+  o String violation_type
+  o String violation_details optional
+  o String violation_location optional
+  --> Driver driver
+}
+
+asset MajorAccident identified by accident_id{
+  o String accident_id
+  o DateTime accident_time
+  o String accident_details 
+  o String accident_location
+  o String accident_video_stream optional
+  --> Driver driver
+}
+  
+asset DrivingLog identified by log_id {
+  o String log_id
+  o String encrypted_log
+  o String file_hash
+  o String[] requestors
+  o String[] approved_viewers
+  --> Driver driver
+}
+
+transaction LogDrivingViolation {
+  o String violation_no
+  o ViolationType violation_type
+  o DateTime violation_time
+  o String violation_details optional
+  o String violation_location optional
+  o String violation_video_stream optional
+  --> Driver driver
+}
+
+transaction UpdateScore {
+  o Integer new_score
+  --> Driver driver
+}
+
+transaction UploadDrivingLog {
+  o String log_id
+  o String encrypted_log
+  o String file_hash
+  --> Driver driver
+}
+  
+transaction SetupDemo {
+  
+}
+
+transaction RequestAccessToLog {
+  o String log_id
+  --> Insurer insurer
+  --> Driver driver
+}
+
+transaction LogMajorAccident {
+  o String accident_no
+  o DateTime accident_time
+  o String accident_details
+  o String accident_location
+  o String accident_video_stream optional
+  --> Driver driver
+}
+
+transaction GrantAccessToLog {
+  o String log_id
+  --> Insurer insurer
+  --> Driver driver
+}
